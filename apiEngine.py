@@ -14,7 +14,7 @@ from tornado.wsgi import WSGIContainer
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
-from conn.model import _record_loan_request_api,_get_loan_request_list_api,_get_loan_payout_list_api,_loan_approval_api,_registration_api
+from conn.model import _record_loan_request_api,_get_loan_request_list_api,_get_loan_payout_list_api,_loan_approval_api,_registration_api,_get_statement_api
 from conn.db_helper import create_connection,close_connection,NoResultException
 #-pip install tornado.
 
@@ -71,6 +71,38 @@ def freknurRegistration():
 				resp = _registration_api(content,db)
 			else:
 				resp = {"ERROR":"1","RESULT":"FAIL" ,"MESSAGE":"No data posted"}
+			
+		return str(resp)
+	except MySQLdb.Error, e:
+		log.error(e)
+	except Exception, e:
+		log.error(e)
+	finally:
+		try:
+			if(not db):
+				exit(0)
+			else:
+				"""
+				close MySQL connection.
+				"""			
+				close_connection(db)
+		except MySQLdb.Error, e:
+			log.error(e)
+			
+"""
+get statement.
+"""
+@app.route('/getStatementApi/', methods = ['GET', 'POST'])
+def getStatement():
+	db = create_connection()
+	try:
+		resp = 'Ok'
+		if(request.method == 'POST'):
+			return "POST method not allowed"
+		elif(request.method == 'GET'):
+			msisdn  = request.args.get('msisdn')
+			
+			resp = _get_statement_api(msisdn,db)
 			
 		return str(resp)
 	except MySQLdb.Error, e:

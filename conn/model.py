@@ -7,7 +7,7 @@ import sys
 from db_helper import _record_loan_request_db,_loan_request_list_db,_loan_payout_list_db,\
                      _loan_approval_operation_db,_get_loan_request_db,_mark_loan_request_processed_db,\
 					 _queue_loan_db,_registration_db,_get_loan_payout_db,_dispatch_loan_db,_record_loan_transaction_db,\
-					 _record_loan_fee_db
+					 _record_loan_fee_db,_statement_db
 
 def _record_loan_request_api(json,conn=None):
 	db_response = 'None'
@@ -24,6 +24,7 @@ def _record_loan_request_api(json,conn=None):
 		
 	return db_response 
 
+
 def _registration_api(json,conn=None):
 	db_response = 'None'
 	if(json is not None):
@@ -38,6 +39,13 @@ def _registration_api(json,conn=None):
 		db_response = _registration_db(msisdn,passwd,conn)
 		
 	return db_response 
+	
+def _get_statement_api(msisdn,conn=None):
+	db_response = 'None'
+	if(msisdn is not None):
+		db_response = _statement_db(msisdn,conn)
+	
+	return db_response
 
 def _get_loan_request_list_api(flag,min,max,conn=None):
 	db_response = 'None'
