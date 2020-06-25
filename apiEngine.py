@@ -34,8 +34,11 @@ def recordLoanRequest():
 		if(request.method == 'GET'):
 			return "GET method not allowed"
 		elif(request.method == 'POST'):	
-			content = json.loads(request.data)
-			resp = _record_loan_request_api(content,db)
+			if(request.data):
+				content = json.loads(request.data)
+				resp = _record_loan_request_api(content,db)
+			else:
+				resp = {"ERROR":"1","RESULT":"FAIL" ,"MESSAGE":"No data posted"}
 					
 		return str(resp)
 	except MySQLdb.Error, e:
@@ -63,8 +66,11 @@ def freknurRegistration():
 		if(request.method == 'GET'):
 			return "GET method not allowed"
 		elif(request.method == 'POST'):	
-			content = json.loads(request.data)
-			resp = _registration_api(content,db)
+			if(request.data):
+				content = json.loads(request.data)
+				resp = _registration_api(content,db)
+			else:
+				resp = {"ERROR":"1","RESULT":"FAIL" ,"MESSAGE":"No data posted"}
 			
 		return str(resp)
 	except MySQLdb.Error, e:
