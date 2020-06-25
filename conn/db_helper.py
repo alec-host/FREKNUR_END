@@ -170,7 +170,8 @@ def _loan_payout_list_db(flag,lower_min,lower_max,conn):
 				 FROM 
 				`tbl_loan_payout`
 				 WHERE 
-				`is_processed` = %s 
+				`is_processed` = %s
+			     ORDER BY `date_created` DESC
                  LIMIT %i, %i 
 				 """ % (flag,int(lower_min),int(lower_max))
 				 
@@ -204,6 +205,7 @@ def _loan_request_list_db(flag,lower_min,lower_max,conn):
 				`tbl_loan_request`
 				 WHERE 
 				`is_processed` = %s 
+			     ORDER BY `date_created` DESC
                  LIMIT %i, %i 
 				 """ % (flag,int(lower_min),int(lower_max))
 				 
@@ -221,6 +223,172 @@ def _loan_request_list_db(flag,lower_min,lower_max,conn):
 		raise	
 	
 	return jsString
+	
+"""
+-=================================================
+-.accounts log.
+-=================================================	
+"""	
+def _get_accounts_db(code,search,lower_min,lower_max,conn):
+	status  = 0
+	jsString = None
+	try:
+		if(str(code) == 'GEN'):
+			sql = """
+				  SELECT 
+				 `account_code`,`reference_no`,`msisdn`,`cr`,`dr`,`balance`,`narration`,CONCAT("'",`date_created`,"'") AS date_created
+				  FROM 
+				 `tbl_transaction`
+				  WHERE
+				 `is_archived` = %s AND `account_code` != '%s' 
+				  ORDER BY 
+				 `date_created` DESC
+				  LIMIT %i, %i  
+				  """ % (status,str(code),int(lower_min),int(lower_max))
+		elif(str(code) == 'STMT'):
+			sql = """
+				  SELECT 
+				  'SELF' AS account_code,`reference_no`,`msisdn`,`cr`,`dr`,`balance`,`narration`,CONCAT("'",`date_created`,"'") AS date_created
+				  FROM 
+				 `tbl_wallet_transaction`
+				  WHERE
+				 `is_archived` = %s AND `msisdn` = '%s' 
+				  ORDER BY 
+				 `date_created` DESC
+				  LIMIT %i, %i  
+				  """ % (status,search,int(lower_min),int(lower_max))
+		else:
+			sql = """
+				  SELECT 
+				 `account_code`,`reference_no`,`msisdn`,`cr`,`dr`,`balance`,`narration`,CONCAT("'",`date_created`,"'") AS date_created
+				  FROM 
+				 `tbl_transaction`
+				  WHERE
+				 `is_archived` = %s AND `account_code` = '%s'
+				  ORDER BY 
+				 `date_created` DESC
+				  LIMIT %i, %i  
+				  """ % (status,str(code),int(lower_min),int(lower_max))
+			  
+		params = ()
+	
+		recordset = db.retrieve_all_data_params(conn,sql,params)
+		
+		jsonArray = ast.literal_eval(json.dumps(recordset))
+		jsonArraySize = len(jsonArray)
+		
+		jsString = '{"Result":"OK","Records":'+str(json.dumps(recordset))+',"TotalRecordCount":'+str(jsonArraySize)+'}'
+	
+	except Exception,e:
+		logger.error(e)
+		raise
+	
+	return jsString	
+
+"""
+-=================================================
+-.debtor list.
+-=================================================	
+"""	
+def _get_debtor_list_db(filter,lower_min,lower_max,conn):
+	status  = 0
+	jsString = None
+	try:
+	
+		sql = """
+			  SELECT 
+			 `id`,`reference_no`,`msisdn`,`amount_requested`,`amount_disbursed`,`repayment_amount`,CONCAT("'",`repayment_date`,"'") AS repayment_date,CONCAT("'",`date_created`,"'") AS date_created
+			  FROM 
+			 `tbl_debtor`
+			  WHERE
+			 `is_archived` = %s  
+			  ORDER BY 
+			 `date_created` DESC
+			  LIMIT %i, %i  
+			  """ % (status,int(lower_min),int(lower_max))
+			  
+		params = ()
+	
+		recordset = db.retrieve_all_data_params(conn,sql,params)
+		
+		jsonArray = ast.literal_eval(json.dumps(recordset))
+		jsonArraySize = len(jsonArray)
+		
+		jsString = '{"Result":"OK","Records":'+str(json.dumps(recordset))+',"TotalRecordCount":'+str(jsonArraySize)+'}'
+	
+	except Exception,e:
+		logger.error(e)
+		raise
+	
+	return jsString
+
+"""
+-=================================================
+-.debtor list.
+-=================================================	
+"""	
+def _get_defaulter_list_db(filter,lower_min,lower_max,conn):
+	status  = 0
+	jsString = None
+	try:
+	
+		sql = """
+			  SELECT 
+			 `id`,`msisdn`,`amount_requested`,`amount_repaid`,CONCAT("'",`expected_repayment_date`,"'") AS repayment_date,CONCAT("'",`date_repaid`,"'") AS date_repaid,`roll_count`,CONCAT("'",`date_created`,"'") AS date_created
+			  FROM 
+			 `tbl_defaulter`
+			  WHERE
+			 `is_archived` = %s
+			  LIMIT %i, %i  
+			  """ % (status,int(lower_min),int(lower_max))
+			  
+		params = ()
+	
+		recordset = db.retrieve_all_data_params(conn,sql,params)
+		
+		jsonArray = ast.literal_eval(json.dumps(recordset))
+		jsonArraySize = len(jsonArray)
+		
+		jsString = '{"Result":"OK","Records":'+str(json.dumps(recordset))+',"TotalRecordCount":'+str(jsonArraySize)+'}'
+	
+	except Exception,e:
+		logger.error(e)
+		raise
+	
+	return jsString
+
+"""
+-=================================================
+-.account summary.
+-=================================================	
+"""	
+def _get_account_summary_db(lower_min,lower_max,conn):
+	status  = 0
+	jsString = None
+	try:
+		sql = """
+			  SELECT 
+			 `id`,`account_code`,`account_name`,`balance`,CONCAT("'",`date_created`,"'") AS date_created
+			  FROM 
+			 `tbl_account`
+			  LIMIT %i, %i  
+			  """ % (int(lower_min),int(lower_max))
+			  
+		params = ()
+	
+		recordset = db.retrieve_all_data_params(conn,sql,params)
+		
+		jsonArray = ast.literal_eval(json.dumps(recordset))
+		jsonArraySize = len(jsonArray)
+		
+		jsString = '{"Result":"OK","Records":'+str(json.dumps(recordset))+',"TotalRecordCount":'+str(jsonArraySize)+'}'
+	
+	except Exception,e:
+		logger.error(e)
+		raise
+	
+	return jsString
+
 
 """
 -=================================================
@@ -322,7 +490,7 @@ def _get_loan_payout_db(conn,limit=1000):
 		raise
 	
 	return jsString	
-		
+			
 """
 -=================================================
 -.mark load as queued.

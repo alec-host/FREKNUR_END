@@ -7,7 +7,7 @@ import sys
 from db_helper import _record_loan_request_db,_loan_request_list_db,_loan_payout_list_db,\
                      _loan_approval_operation_db,_get_loan_request_db,_mark_loan_request_processed_db,\
 					 _queue_loan_db,_registration_db,_get_loan_payout_db,_dispatch_loan_db,_record_loan_transaction_db,\
-					 _record_loan_fee_db,_statement_db
+					 _record_loan_fee_db,_statement_db,_get_accounts_db,_get_debtor_list_db,_get_defaulter_list_db,_get_account_summary_db
 
 def _record_loan_request_api(json,conn=None):
 	db_response = 'None'
@@ -61,6 +61,30 @@ def _get_loan_payout_list_api(flag,min,max,conn=None):
 		db_response = _loan_payout_list_db(flag,min,max,conn)
 		
 	return db_response
+
+def _get_accounts_log_api(code,search,min,max,conn=None):
+	if(conn is not None):
+		db_response = _get_accounts_db(code,search,min,max,conn)		
+	
+	return db_response
+	
+def _get_debtor_list_api(filter,min,max,conn=None):
+	if(conn is not None):
+		db_response = _get_debtor_list_db(filter,min,max,conn)		
+	
+	return db_response
+
+def _get_defaulter_list_api(filter,min,max,conn=None):
+	if(conn is not None):
+		db_response = _get_defaulter_list_db(filter,min,max,conn)		
+	
+	return db_response
+	
+def _get_account_summary_api(min,max,conn=None):
+	if(conn is not None):
+		db_response = _get_account_summary_db(min,max,conn)		
+	
+	return db_response	
 	
 def _loan_approval_api(data,conn=None):
 	db_response = 'None'
@@ -88,7 +112,7 @@ def _read_loan_payout_queue_sys(conn=None):
 	if(conn is not None):
 		db_response = _get_loan_payout_db(conn)		
 	
-	return db_response		
+	return db_response	
 	
 def _queue_loan_sys(reference_no,msisdn,loan_amount,approved_by,conn=None):
 	if(conn is not None and reference_no is not None and msisdn is not None and loan_amount is not None):
