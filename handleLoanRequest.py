@@ -30,21 +30,21 @@ def handleLoanRequest():
 				"""
 				-.check for loan allowed.
 				"""
-				if(str(item['amount']) < loan_params['min_loan']):
+				if(str(int(item['amount'])) < str(loan_params['min_loan'])):
 					"""
 					-.json output.
 					"""			
 					print('{"ERROR":"1","RESULT":"FAIL","MESSAGE":"Allowed minimun loan is KES."'+str(loan_params['min_loan'])+'}')
-				elif(loan_params['max_loan'] > str(item['amount'])):
+				elif(str(int(item['amount'])) > str(loan_params['max_loan'])):
 					"""
 					-.json output.
 					"""				
-					print('{"ERROR":"1","RESULT":"FAIL","MESSAGE":"Allowed maximum loan is KES."'+str(loan_params['max_loan'])+'}')		
+					print('{"ERROR":"1","RESULT":"FAIL","MESSAGE":"Allowed maximum loan is KES."'+str(loan_params['max_loan'])+'}')	
 				else:
 					"""
 					-.queue loan & mark as processed.
 					"""
-					_queue_loan_sys(item['reference_no'],item['msisdn'],str(item['amount']),item['approved_by'],db)
+					_queue_loan_sys(item['reference_no'],item['msisdn'],str(item['amount']),item['approved_by'],db)	
 					
 	except MySQLdb.Error, e:
 		log.error(e)

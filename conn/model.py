@@ -7,7 +7,8 @@ import sys
 from db_helper import _record_loan_request_db,_loan_request_list_db,_loan_payout_list_db,\
                      _loan_approval_operation_db,_get_loan_request_db,_mark_loan_request_processed_db,\
 					 _queue_loan_db,_registration_db,_get_loan_payout_db,_dispatch_loan_db,_record_loan_transaction_db,\
-					 _record_loan_fee_db,_statement_db,_get_accounts_db,_get_debtor_list_db,_get_defaulter_list_db,_get_account_summary_db
+					 _record_loan_fee_db,_statement_db,_get_accounts_db,_get_debtor_list_db,_get_defaulter_list_db,_get_account_summary_db,\
+					 _mpesa_receipt_db
 
 def _record_loan_request_api(json,conn=None):
 	db_response = 'None'
@@ -47,18 +48,18 @@ def _get_statement_api(msisdn,conn=None):
 	
 	return db_response
 
-def _get_loan_request_list_api(flag,min,max,conn=None):
+def _get_loan_request_list_api(search,min,max,conn=None):
 	db_response = 'None'
-	if(flag is not None):
-		db_response = _loan_request_list_db(flag,min,max,conn)
+	if(conn is not None):
+		db_response = _loan_request_list_db(search,min,max,conn)
 	
 	return db_response
 
-def _get_loan_payout_list_api(flag,min,max,conn=None):	
+def _get_loan_payout_list_api(search,min,max,conn=None):	
 	db_response = 'None'
-	if(flag is not None):
+	if(conn is not None):
 	
-		db_response = _loan_payout_list_db(flag,min,max,conn)
+		db_response = _loan_payout_list_db(search,min,max,conn)
 		
 	return db_response
 
@@ -68,15 +69,15 @@ def _get_accounts_log_api(code,search,min,max,conn=None):
 	
 	return db_response
 	
-def _get_debtor_list_api(filter,min,max,conn=None):
+def _get_debtor_list_api(search,min,max,conn=None):
 	if(conn is not None):
-		db_response = _get_debtor_list_db(filter,min,max,conn)		
+		db_response = _get_debtor_list_db(search,min,max,conn)		
 	
 	return db_response
 
-def _get_defaulter_list_api(filter,min,max,conn=None):
+def _get_defaulter_list_api(search,min,max,conn=None):
 	if(conn is not None):
-		db_response = _get_defaulter_list_db(filter,min,max,conn)		
+		db_response = _get_defaulter_list_db(search,min,max,conn)		
 	
 	return db_response
 	
@@ -93,6 +94,15 @@ def _loan_approval_api(data,conn=None):
 	mobile = data.get("mobile",None)
 	if(data is not None):
 		db_response = _loan_approval_operation_db(loan_id,mobile,user,conn)
+	
+	return db_response
+
+def _mpesa_receipt_api(data,conn=None):
+    db_response = None
+	msisdn = data.get("msisdn",None)
+	amount = data.get("amount",None)
+	if(conn is not None and msisdn is not None):
+		db_response = _mpesa_receipt_db(msisdn,amount,conn)
 	
 	return db_response
 	
@@ -137,3 +147,4 @@ def _record_loan_fee_sys(msisdn,reference_no,loan_fee,account_name,conn=None):
 		db_response = _record_loan_fee_db(msisdn,reference_no,loan_fee,account_name,conn)
 		
 	return db_response
+	

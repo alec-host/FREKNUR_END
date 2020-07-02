@@ -16,7 +16,7 @@ from tornado.ioloop import IOLoop
 
 from conn.model import _record_loan_request_api,_get_loan_request_list_api,_get_loan_payout_list_api,_loan_approval_api,\
                        _registration_api,_get_statement_api,_get_accounts_log_api,_get_debtor_list_api,_get_defaulter_list_api,\
-					   _get_account_summary_api
+					   _get_account_summary_api,_mpesa_receipt_api
 from conn.db_helper import create_connection,close_connection,NoResultException
 #-pip install tornado.
 
@@ -34,7 +34,7 @@ def recordLoanRequest():
 	try:
 		resp = 'Ok'
 		if(request.method == 'GET'):
-			return "GET method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'POST'):	
 			if(request.data):
 				content = json.loads(request.data)
@@ -66,7 +66,7 @@ def freknurRegistration():
 	try:
 		resp = 'Ok'
 		if(request.method == 'GET'):
-			return "GET method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'POST'):	
 			if(request.data):
 				content = json.loads(request.data)
@@ -100,7 +100,7 @@ def getStatement():
 	try:
 		resp = 'Ok'
 		if(request.method == 'POST'):
-			return "POST method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'GET'):
 			msisdn  = request.args.get('msisdn')
 			
@@ -132,13 +132,13 @@ def getLoanRequestList():
 	try:
 		resp = 'Ok'
 		if(request.method == 'POST'):
-			return "POST method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'GET'):
-			flag = request.args.get('flag')
-			max  = request.args.get('max')
-			min  = request.args.get('min')
+			search = request.args.get('search')
+			max    = request.args.get('max')
+			min    = request.args.get('min')
 			
-			resp = _get_loan_request_list_api(flag,min,max,db)
+			resp = _get_loan_request_list_api(search,min,max,db)
 					
 		return str(resp)
 	except MySQLdb.Error, e:
@@ -167,13 +167,13 @@ def getLoanPayoutList():
 	try:
 		resp = 'Ok'
 		if(request.method == 'POST'):
-			return "POST method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'GET'):
-			flag = request.args.get('flag')
-			max  = request.args.get('max')
-			min  = request.args.get('min')
+			search = request.args.get('flag')
+			max    = request.args.get('max')
+			min    = request.args.get('min')
 			
-			resp = _get_loan_payout_list_api(flag,min,max,db)
+			resp = _get_loan_payout_list_api(search,min,max,db)
 					
 		return str(resp)
 	except MySQLdb.Error, e:
@@ -201,7 +201,7 @@ def getAccountsLog():
 	try:
 		resp = 'Ok'
 		if(request.method == 'POST'):
-			return "POST method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'GET'):
 			code = request.args.get('account_code')
 			max  = request.args.get('max')
@@ -236,13 +236,13 @@ def getDebtorList():
 	try:
 		resp = 'Ok'
 		if(request.method == 'POST'):
-			return "POST method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'GET'):
-			filter = request.args.get('filter')
+			search = request.args.get('search')
 			max    = request.args.get('max')
 			min    = request.args.get('min')
 			
-			resp = _get_debtor_list_api(filter,min,max,db)
+			resp = _get_debtor_list_api(search,min,max,db)
 					
 		return str(resp)
 	except MySQLdb.Error, e:
@@ -270,13 +270,13 @@ def getDefaulterList():
 	try:
 		resp = 'Ok'
 		if(request.method == 'POST'):
-			return "POST method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'GET'):
-			filter = request.args.get('filter')
+			search = request.args.get('search')
 			max    = request.args.get('max')
 			min    = request.args.get('min')
 			
-			resp = _get_defaulter_list_api(filter,min,max,db)
+			resp = _get_defaulter_list_api(search,min,max,db)
 					
 		return str(resp)
 	except MySQLdb.Error, e:
@@ -304,7 +304,7 @@ def getAccountSummary():
 	try:
 		resp = 'Ok'
 		if(request.method == 'POST'):
-			return "POST method not allowed"
+			return '{"ERROR":"1", "RESULT": "FAIL", "MESSAGE": "POST method not allowed"}'
 		elif(request.method == 'GET'):
 			max    = request.args.get('max')
 			min    = request.args.get('min')
@@ -337,11 +337,11 @@ def loanApprovalOperation():
 	try:
 		resp = 'Ok'
 		if(request.method == 'GET'):
-			return {"Result":"Ok","Message":"GET method not allowed"}		
+			return {"ERROR":"1","RESULT":"FAIL","MESSAGE":"GET method not allowed"}		
 		elif(request.method == 'POST'):
 			req_data = request.get_json()
 			resp = _loan_approval_api(req_data,db) 
-		return jsonify({"success":True,"data":resp})		
+		return jsonify({"ERROR","0","DATA",resp})		
 	except MySQLdb.Error, e:
 		log.error(e)
 	except Exception, e:
@@ -367,11 +367,47 @@ def userAuthentication():
 	try:
 		resp = 'Ok'
 		if(request.method == 'GET'):
-			return {"Result":"Ok","Message":"GET method not allowed"}		
+			return {"ERROR":"1","RESULT":"FAIL","MESSAGE":"GET method not allowed"}		
 		elif(request.method == 'POST'):
 			req_data = request.get_json()
 			#resp = _loan_approval_api(req_data,db) 
-		return jsonify({"success":True,"name":"admin","type":"admin"})		
+		return jsonify({"ERROR":"0","RESULT":"SUCCESS","MESSAGE":"Authentication successful."})		
+	except MySQLdb.Error, e:
+		log.error(e)
+	except Exception, e:
+		log.error(e)
+	finally:
+		try:
+			if(not db):
+				exit(0)
+			else:
+				"""
+				close MySQL connection.
+				"""			
+				close_connection(db)
+		except MySQLdb.Error, e:
+			log.error(e)
+			
+"""
+-.withdraw operation.
+"""
+@app.route('/cashoutRequest/', methods = ['GET', 'POST'])
+def cashoutOperation():
+	db = create_connection()
+	try:
+        try:
+			resp = 'Ok'
+			if(request.method == 'GET'):
+				return {"ERROR":"1","RESULT":"FAIL","MESSAGE":"GET method not allowed"}
+			elif(request.method == 'POST'):
+				if(request.data):
+					content = json.loads(request.data)
+					resp = _mpesa_receipt_api(content,db)
+					if(resp is None):
+						resp = {"ERROR":"1","RESULT":"FAIL","MESSAGE":"A/C does not exist."}
+				else:
+					return {"ERROR":"1","RESULT":"FAIL","MESSAGE":"MSISDN|AMOUNT must be SET."}
+			return resp		
 	except MySQLdb.Error, e:
 		log.error(e)
 	except Exception, e:
